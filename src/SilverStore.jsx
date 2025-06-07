@@ -633,8 +633,11 @@ const SilverStore = () => {
             <h1 className="text-5xl font-bold mb-6">Welcome to SilverStore</h1>
             <p className="text-xl mb-8 opacity-90">Discover premium products with intelligent recommendations</p>
             <div className="flex justify-center">
-              <div className="relative w-full max-w-lg">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <div 
+                className="relative w-full max-w-lg"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Search products..."
@@ -645,7 +648,9 @@ const SilverStore = () => {
                   }}
                   onFocus={(e) => e.stopPropagation()}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 />
               </div>
             </div>
