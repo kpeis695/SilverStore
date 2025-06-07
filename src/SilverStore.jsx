@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ShoppingCart, Package, TrendingUp, Users, DollarSign, Search, Filter, Star, Heart, Plus, Minus, Eye, BarChart3, ShoppingBag, CreditCard, Truck, AlertCircle, CheckCircle } from 'lucide-react';
+import { ShoppingCart, Package, TrendingUp, Users, DollarSign, Search, Star, Heart, Plus, Minus, Eye, BarChart3, ShoppingBag, CreditCard, AlertCircle, CheckCircle } from 'lucide-react';
 
 const SilverStore = () => {
   // State management
@@ -211,12 +211,10 @@ const SilverStore = () => {
     
     // Generate initial AI recommendations
     generateAIRecommendations(demoProducts, demoUserProfile);
-  }, []);
+  }, [generateAIRecommendations]);
 
   // AI Recommendation Engine
   const generateAIRecommendations = useCallback((productList, profile) => {
-    const recommendations = [];
-    
     // Collaborative Filtering: Find similar users' purchases
     const collaborativeRecs = getCollaborativeRecommendations(productList, profile);
     
@@ -379,6 +377,10 @@ const SilverStore = () => {
             1
           );
           break;
+          
+        default:
+          // No action needed for unknown actions
+          break;
       }
       
       return updatedProfile;
@@ -500,7 +502,7 @@ const SilverStore = () => {
 
   // AI Recommendation Card Component
   const AIRecommendationCard = ({ recommendation, addToCart, onView }) => {
-    const { product, confidence, reason, type } = recommendation;
+    const { product, confidence, reason } = recommendation;
     
     return (
       <div 
