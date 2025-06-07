@@ -18,6 +18,133 @@ const SilverStore = () => {
     aiRecommendations: []
   });
 
+  // AI Recommendation Functions
+  const getCollaborativeRecommendations = (productList, profile) => {
+    // Simulate collaborative filtering based on similar users
+    const similarUsers = [
+      { purchases: [1, 3, 6, 8], similarity: 0.8 },
+      { purchases: [2, 4, 5, 9], similarity: 0.6 },
+      { purchases: [1, 7, 9, 10], similarity: 0.7 }
+    ];
+    
+    const recommendations = [];
+    similarUsers.forEach(user => {
+      user.purchases.forEach(productId => {
+        if (!profile.purchaseHistory.includes(productId)) {
+          const product = productList.find(p => p.id === productId);
+          if (product) {
+            recommendations.push({
+              product,
+              confidence: user.similarity * 0.8,
+              reason: "Users with similar interests also bought this"
+            });
+          }
+        }
+      });
+    });
+    
+    return recommendations;
+  };
+
+  const getContentBasedRecommendations = (productList, profile) => {
+    const recommendations = [];
+    
+    // Find products similar to purchase history
+    profile.purchaseHistory.forEach(purchasedId => {
+      const purchasedProduct = productList.find(p => p.id === purchasedId);
+      if (purchasedProduct) {
+        productList.forEach(product => {
+          if (product.id !== purchasedId && !profile.purchaseHistory.includes(product.id)) {
+            let similarity = 0;
+            
+            // Category similarity
+            if (product.category === purchasedProduct.category) {
+              similarity += 0.5;
+            }
+            
+            // Tag similarity
+            const commonTags = product.tags?.filter(tag => 
+              purchasedProduct.tags?.includes(tag)
+            ).length || 0;
+            similarity += (commonTags / Math.max(product.tags?.length || 1, purchasedProduct.tags?.length || 1)) * 0.3;
+            
+            // Related categories
+            const commonRelated = product.relatedCategories?.filter(cat => 
+              purchasedProduct.relatedCategories?.includes(cat)
+            ).length || 0;
+            similarity += (commonRelated / Math.max(product.relatedCategories?.length || 1, purchasedProduct.relatedCategories?.length || 1)) * 0.2;
+            
+            if (similarity > 0.3) {
+              recommendations.push({
+                product,
+                confidence: similarity,
+                reason: `Similar to ${purchasedProduct.name}`
+              });
+            }
+          }
+        });
+      }
+    });
+    
+    return recommendations;
+  };
+
+  const getTrendingRecommendations = (productList, profile) => {
+    return productList
+      .filter(product => !profile.purchaseHistory.includes(product.id))
+      .map(product => {
+        let trendingScore = product.rating * 0.3 + (product.reviews / 300) * 0.3;
+        
+        // Boost score based on user preferences
+        if (profile.preferences[product.category]) {
+          trendingScore *= (1 + profile.preferences[product.category]);
+        }
+        
+        return {
+          product,
+          confidence: Math.min(trendingScore, 1),
+          reason: "Trending in your interests"
+        };
+      })
+      .filter(rec => rec.confidence > 0.4);
+  };
+
+  // AI Recommendation Engine
+  const generateAIRecommendations = useCallback((productList, profile) => {
+    // Collaborative Filtering: Find similar users' purchases
+    const collaborativeRecs = getCollaborativeRecommendations(productList, profile);
+    
+    // Content-Based Filtering: Recommend based on purchase history
+    const contentBasedRecs = getContentBasedRecommendations(productList, profile);
+    
+    // Trending/Popular items with user preference weighting
+    const trendingRecs = getTrendingRecommendations(productList, profile);
+    
+    // Combine all recommendation types with confidence scores
+    const allRecs = [
+      ...collaborativeRecs.map(r => ({ ...r, type: 'collaborative', confidence: r.confidence * 0.4 })),
+      ...contentBasedRecs.map(r => ({ ...r, type: 'content-based', confidence: r.confidence * 0.5 })),
+      ...trendingRecs.map(r => ({ ...r, type: 'trending', confidence: r.confidence * 0.3 }))
+    ];
+    
+    // Sort by confidence and remove duplicates
+    const uniqueRecs = allRecs
+      .reduce((acc, rec) => {
+        const existing = acc.find(r => r.product.id === rec.product.id);
+        if (!existing || existing.confidence < rec.confidence) {
+          return [...acc.filter(r => r.product.id !== rec.product.id), rec];
+        }
+        return acc;
+      }, [])
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 8);
+    
+    setUserProfile(prev => ({
+      ...prev,
+      aiRecommendations: uniqueRecs
+    }));
+  }, []);
+
   // Initialize demo data
   useEffect(() => {
     const demoProducts = [
@@ -212,132 +339,6 @@ const SilverStore = () => {
     // Generate initial AI recommendations
     generateAIRecommendations(demoProducts, demoUserProfile);
   }, [generateAIRecommendations]);
-
-  // AI Recommendation Engine
-  const generateAIRecommendations = useCallback((productList, profile) => {
-    // Collaborative Filtering: Find similar users' purchases
-    const collaborativeRecs = getCollaborativeRecommendations(productList, profile);
-    
-    // Content-Based Filtering: Recommend based on purchase history
-    const contentBasedRecs = getContentBasedRecommendations(productList, profile);
-    
-    // Trending/Popular items with user preference weighting
-    const trendingRecs = getTrendingRecommendations(productList, profile);
-    
-    // Combine all recommendation types with confidence scores
-    const allRecs = [
-      ...collaborativeRecs.map(r => ({ ...r, type: 'collaborative', confidence: r.confidence * 0.4 })),
-      ...contentBasedRecs.map(r => ({ ...r, type: 'content-based', confidence: r.confidence * 0.5 })),
-      ...trendingRecs.map(r => ({ ...r, type: 'trending', confidence: r.confidence * 0.3 }))
-    ];
-    
-    // Sort by confidence and remove duplicates
-    const uniqueRecs = allRecs
-      .reduce((acc, rec) => {
-        const existing = acc.find(r => r.product.id === rec.product.id);
-        if (!existing || existing.confidence < rec.confidence) {
-          return [...acc.filter(r => r.product.id !== rec.product.id), rec];
-        }
-        return acc;
-      }, [])
-      .sort((a, b) => b.confidence - a.confidence)
-      .slice(0, 8);
-    
-    setUserProfile(prev => ({
-      ...prev,
-      aiRecommendations: uniqueRecs
-    }));
-  }, []);
-
-  const getCollaborativeRecommendations = (productList, profile) => {
-    // Simulate collaborative filtering based on similar users
-    const similarUsers = [
-      { purchases: [1, 3, 6, 8], similarity: 0.8 },
-      { purchases: [2, 4, 5, 9], similarity: 0.6 },
-      { purchases: [1, 7, 9, 10], similarity: 0.7 }
-    ];
-    
-    const recommendations = [];
-    similarUsers.forEach(user => {
-      user.purchases.forEach(productId => {
-        if (!profile.purchaseHistory.includes(productId)) {
-          const product = productList.find(p => p.id === productId);
-          if (product) {
-            recommendations.push({
-              product,
-              confidence: user.similarity * 0.8,
-              reason: "Users with similar interests also bought this"
-            });
-          }
-        }
-      });
-    });
-    
-    return recommendations;
-  };
-
-  const getContentBasedRecommendations = (productList, profile) => {
-    const recommendations = [];
-    
-    // Find products similar to purchase history
-    profile.purchaseHistory.forEach(purchasedId => {
-      const purchasedProduct = productList.find(p => p.id === purchasedId);
-      if (purchasedProduct) {
-        productList.forEach(product => {
-          if (product.id !== purchasedId && !profile.purchaseHistory.includes(product.id)) {
-            let similarity = 0;
-            
-            // Category similarity
-            if (product.category === purchasedProduct.category) {
-              similarity += 0.5;
-            }
-            
-            // Tag similarity
-            const commonTags = product.tags?.filter(tag => 
-              purchasedProduct.tags?.includes(tag)
-            ).length || 0;
-            similarity += (commonTags / Math.max(product.tags?.length || 1, purchasedProduct.tags?.length || 1)) * 0.3;
-            
-            // Related categories
-            const commonRelated = product.relatedCategories?.filter(cat => 
-              purchasedProduct.relatedCategories?.includes(cat)
-            ).length || 0;
-            similarity += (commonRelated / Math.max(product.relatedCategories?.length || 1, purchasedProduct.relatedCategories?.length || 1)) * 0.2;
-            
-            if (similarity > 0.3) {
-              recommendations.push({
-                product,
-                confidence: similarity,
-                reason: `Similar to ${purchasedProduct.name}`
-              });
-            }
-          }
-        });
-      }
-    });
-    
-    return recommendations;
-  };
-
-  const getTrendingRecommendations = (productList, profile) => {
-    return productList
-      .filter(product => !profile.purchaseHistory.includes(product.id))
-      .map(product => {
-        let trendingScore = product.rating * 0.3 + (product.reviews / 300) * 0.3;
-        
-        // Boost score based on user preferences
-        if (profile.preferences[product.category]) {
-          trendingScore *= (1 + profile.preferences[product.category]);
-        }
-        
-        return {
-          product,
-          confidence: Math.min(trendingScore, 1),
-          reason: "Trending in your interests"
-        };
-      })
-      .filter(rec => rec.confidence > 0.4);
-  };
 
   // Track user behavior for AI learning
   const trackUserInteraction = useCallback((action, productId, data = {}) => {
