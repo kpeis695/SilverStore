@@ -2,7 +2,7 @@
   "name": "silverstore",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://YOURUSERNAME.github.io/SilverStore",
+  "homepage": "https://kpeis695.github.io/SilverStore",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
