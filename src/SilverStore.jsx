@@ -508,7 +508,12 @@ const SilverStore = () => {
     return (
       <div 
         className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden relative"
-        onClick={onView}
+        onClick={(e) => {
+          // Only trigger onView if not clicking on interactive elements
+          if (!e.target.closest('button')) {
+            onView();
+          }
+        }}
       >
         {/* AI Badge */}
         <div className="absolute top-3 right-3 z-10">
@@ -566,7 +571,12 @@ const SilverStore = () => {
   const ProductCard = ({ product, addToCart, onView }) => (
     <div 
       className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer"
-      onClick={onView}
+      onClick={(e) => {
+        // Only trigger onView if not clicking on interactive elements
+        if (!e.target.closest('button')) {
+          onView();
+        }
+      }}
     >
       <div className="aspect-w-1 aspect-h-1 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
         <span className="text-6xl">{product.image}</span>
@@ -629,7 +639,12 @@ const SilverStore = () => {
                   type="text"
                   placeholder="Search products..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setSearchTerm(e.target.value);
+                  }}
+                  onFocus={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
                   className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
                 />
               </div>
@@ -781,6 +796,8 @@ const SilverStore = () => {
                       cart.forEach(item => {
                         trackUserInteraction('purchase', item.id, { quantity: item.quantity });
                       });
+                      // Show checkout success message
+                      alert(`Thank you for your purchase! Total: ${total.toFixed(2)}\n\nYour AI preferences have been updated based on this purchase.`);
                       setCart([]); // Clear cart after purchase
                     }}
                   >
