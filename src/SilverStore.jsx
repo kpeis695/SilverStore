@@ -17,6 +17,18 @@ const SilverStore = () => {
     browsingHistory: [],
     aiRecommendations: []
   });
+  const [checkoutData, setCheckoutData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    address: '',
+    city: '',
+    zipCode: '',
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    nameOnCard: ''
+  });
 
   // AI Recommendation Functions
   const getCollaborativeRecommendations = (productList, profile) => {
@@ -449,6 +461,23 @@ const SilverStore = () => {
 
   const categories = ['all', 'electronics', 'clothing', 'food', 'lifestyle'];
 
+  // Search Component (isolated to prevent event conflicts)
+  const SearchComponent = ({ searchTerm, setSearchTerm }) => {
+    return (
+      <div className="relative w-full max-w-lg">
+        <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none z-10" />
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 relative z-20"
+          autoComplete="off"
+        />
+      </div>
+    );
+  };
+
   // Navigation component
   const Navigation = () => (
     <nav className="bg-white shadow-lg border-b-2 border-blue-500">
@@ -633,26 +662,7 @@ const SilverStore = () => {
             <h1 className="text-5xl font-bold mb-6">Welcome to SilverStore</h1>
             <p className="text-xl mb-8 opacity-90">Discover premium products with intelligent recommendations</p>
             <div className="flex justify-center">
-              <div 
-                className="relative w-full max-w-lg"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    setSearchTerm(e.target.value);
-                  }}
-                  onFocus={(e) => e.stopPropagation()}
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-                />
-              </div>
+              <SearchComponent searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             </div>
           </div>
         </div>
@@ -818,7 +828,234 @@ const SilverStore = () => {
     );
   };
 
-  // Admin Panel View
+  // Checkout View
+  const CheckoutView = () => {
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = total * 0.08; // 8% tax
+    const shipping = total > 50 ? 0 : 9.99; // Free shipping over $50
+    const finalTotal = total + tax + shipping;
+
+    const handleInputChange = (field, value) => {
+      setCheckoutData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    };
+
+    const handleCompleteOrder = () => {
+      // Validate required fields
+      const requiredFields = ['email', 'firstName', 'lastName', 'address', 'city', 'zipCode', 'cardNumber', 'expiryDate', 'cvv', 'nameOnCard'];
+      const missingFields = requiredFields.filter(field => !checkoutData[field]);
+      
+      if (missingFields.length > 0) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      // Track purchases for AI learning
+      cart.forEach(item => {
+        trackUserInteraction('purchase', item.id, { quantity: item.quantity });
+      });
+
+      // Simulate order processing
+      alert(`🎉 Order Confirmed!\n\nTotal: ${finalTotal.toFixed(2)}\nOrder will be delivered to:\n${checkoutData.address}, ${checkoutData.city}\n\nThank you for shopping with SilverStore!`);
+      
+      // Clear cart and reset checkout data
+      setCart([]);
+      setCheckoutData({
+        email: '', firstName: '', lastName: '', address: '', city: '', zipCode: '',
+        cardNumber: '', expiryDate: '', cvv: '', nameOnCard: ''
+      });
+      setCurrentView('storefront');
+    };
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="flex items-center mb-8">
+            <button
+              onClick={() => setCurrentView('cart')}
+              className="mr-4 text-blue-600 hover:text-blue-800 flex items-center"
+            >
+              ← Back to Cart
+            </button>
+            <h1 className="text-3xl font-bold text-gray-900">Secure Checkout</h1>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Checkout Form */}
+            <div className="space-y-6">
+              {/* Contact Information */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
+                <div className="space-y-4">
+                  <input
+                    type="email"
+                    placeholder="Email address"
+                    value={checkoutData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="First name"
+                      value={checkoutData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last name"
+                      value={checkoutData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Street address"
+                    value={checkoutData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="City"
+                      value={checkoutData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="ZIP code"
+                      value={checkoutData.zipCode}
+                      onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Information */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">Payment Information</h2>
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Name on card"
+                    value={checkoutData.nameOnCard}
+                    onChange={(e) => handleInputChange('nameOnCard', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Card number (1234 5678 9012 3456)"
+                    value={checkoutData.cardNumber}
+                    onChange={(e) => handleInputChange('cardNumber', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxLength="19"
+                    required
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="MM/YY"
+                      value={checkoutData.expiryDate}
+                      onChange={(e) => handleInputChange('expiryDate', e.target.value)}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      maxLength="5"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="CVV"
+                      value={checkoutData.cvv}
+                      onChange={(e) => handleInputChange('cvv', e.target.value)}
+                      className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      maxLength="4"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6 sticky top-4">
+                <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+                
+                {/* Cart Items */}
+                <div className="space-y-4 mb-6">
+                  {cart.map(item => (
+                    <div key={item.id} className="flex items-center space-x-4 py-3 border-b">
+                      <span className="text-2xl">{item.image}</span>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{item.name}</h3>
+                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pricing Breakdown */}
+                <div className="space-y-2 border-t pt-4">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>${total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Tax:</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Shipping:</span>
+                    <span>{shipping === 0 ? 'FREE' : `${shipping.toFixed(2)}`}</span>
+                  </div>
+                  <div className="flex justify-between text-xl font-bold border-t pt-2">
+                    <span>Total:</span>
+                    <span>${finalTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Complete Order Button */}
+                <button
+                  onClick={handleCompleteOrder}
+                  className="w-full mt-6 bg-green-600 text-white py-4 px-6 rounded-lg hover:bg-green-700 font-semibold text-lg flex items-center justify-center space-x-2"
+                >
+                  <CreditCard className="h-5 w-5" />
+                  <span>Complete Order</span>
+                </button>
+
+                {/* Security Notice */}
+                <div className="mt-4 flex items-center justify-center text-sm text-gray-600">
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                  <span>Your payment information is secure and encrypted</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
   const AdminView = () => (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -1292,6 +1529,7 @@ const SilverStore = () => {
       <Navigation />
       {currentView === 'storefront' && <StorefrontView />}
       {currentView === 'cart' && <CartView />}
+      {currentView === 'checkout' && <CheckoutView />}
       {currentView === 'admin' && <AdminView />}
       {currentView === 'analytics' && <AnalyticsView />}
       {currentView === 'ai-insights' && <AIInsightsView />}
