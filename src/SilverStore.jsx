@@ -1,189 +1,7 @@
-
-// AI Insights View
-  const AIInsightsView = () => (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">🤖 SilverStore AI Insights</h1>
-          <span className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm">
-            Machine Learning Powered
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* User Preference Profile */}
-          <div className="bg-white rounded-lg shadow-lg">
-            <div className="p-6 border-b border-purple-200">
-              <h2 className="text-xl font-semibold flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
-                Your Preference Profile
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {Object.entries(userProfile.preferences).map(([category, score]) => (
-                  <div key={category}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700 capitalize">{category}</span>
-                      <span className="text-sm text-purple-600 font-bold">{Math.round(score * 100)}%</span>
-                    </div>
-                    <div className="bg-gray-200 rounded-full h-3">
-                      <div 
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${score * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-                <p className="text-sm text-purple-700">
-                  <strong>AI Analysis:</strong> You show strong interest in electronics and moderate interest in fitness products. 
-                  Our recommendations focus on high-tech gadgets and health-related items.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* AI Recommendation Breakdown */}
-          <div className="bg-white rounded-lg shadow-lg">
-            <div className="p-6 border-b border-purple-200">
-              <h2 className="text-xl font-semibold flex items-center">
-                <Eye className="h-5 w-5 mr-2 text-purple-600" />
-                Recommendation Engine
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {userProfile.aiRecommendations.slice(0, 4).map((rec, index) => (
-                  <div key={rec.product.id} className="border-l-4 border-purple-500 pl-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-gray-900">{rec.product.name}</span>
-                      <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                        {Math.round(rec.confidence * 100)}%
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{rec.reason}</p>
-                    <div className="flex items-center space-x-2 text-xs text-gray-500">
-                      <span className="bg-gray-100 px-2 py-1 rounded">{rec.type}</span>
-                      <span>${rec.product.price}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
-                <p className="text-sm text-gray-700">
-                  <strong>How it works:</strong> Our AI analyzes your browsing history, purchases, and similar users' 
-                  behavior to predict what you'll love next.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Behavioral Analytics */}
-          <div className="bg-white rounded-lg shadow-lg">
-            <div className="p-6 border-b border-purple-200">
-              <h2 className="text-xl font-semibold flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
-                Shopping Behavior
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-3">Purchase History</h3>
-                  <div className="space-y-2">
-                    {userProfile.purchaseHistory.slice(0, 3).map(productId => {
-                      const product = products.find(p => p.id === productId);
-                      return product ? (
-                        <div key={productId} className="flex items-center space-x-3 p-2 bg-green-50 rounded">
-                          <span className="text-lg">{product.image}</span>
-                          <div>
-                            <p className="text-sm font-medium">{product.name}</p>
-                            <p className="text-xs text-gray-500">${product.price}</p>
-                          </div>
-                        </div>
-                      ) : null;
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-3">Recently Viewed</h3>
-                  <div className="grid grid-cols-4 gap-2">
-                    {userProfile.browsingHistory.slice(-4).map(productId => {
-                      const product = products.find(p => p.id === productId);
-                      return product ? (
-                        <div key={productId} className="text-center p-2 bg-blue-50 rounded">
-                          <span className="text-lg">{product.image}</span>
-                          <p className="text-xs text-gray-600 mt-1 truncate">{product.name}</p>
-                        </div>
-                      ) : null;
-                    })}
-                  </div>
-                </div>
-
-                <div className="p-4 bg-yellow-50 rounded-lg">
-                  <h3 className="font-medium text-yellow-800 mb-2">🎯 AI Prediction</h3>
-                  <p className="text-sm text-yellow-700">
-                    Based on your behavior, you're 78% likely to purchase another electronics item within the next week.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Smart Recommendations Grid */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">🚀 All AI Recommendations</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {userProfile.aiRecommendations.map(rec => (
-              <AIRecommendationCard 
-                key={rec.product.id} 
-                recommendation={rec} 
-                addToCart={addToCart}
-                onView={() => trackUserInteraction('view', rec.product.id)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* AI Performance Metrics */}
-        <div className="mt-8 bg-white rounded-lg shadow-lg">
-          <div className="p-6 border-b border-purple-200">
-            <h2 className="text-xl font-semibold flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
-              AI Performance Metrics
-            </h2>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">94%</div>
-                <div className="text-sm text-green-700">Recommendation Accuracy</div>
-              </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">76%</div>
-                <div className="text-sm text-blue-700">Click-through Rate</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">12%</div>
-                <div className="text-sm text-purple-700">Conversion Lift</div>
-              </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">$2.4M</div>
-                <div className="text-sm text-orange-700">AI-driven Revenue</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ShoppingCart, Package, TrendingUp, Users, DollarSign, Search, Filter, Star, Heart, Plus, Minus, Eye, BarChart3, ShoppingBag, CreditCard, Truck, AlertCircle, CheckCircle } from 'lucide-react';
 
-const ECommercePlatform = () => {
+const SilverStore = () => {
   // State management
   const [currentView, setCurrentView] = useState('storefront');
   const [products, setProducts] = useState([]);
@@ -680,110 +498,6 @@ const ECommercePlatform = () => {
     </nav>
   );
 
-  // Storefront view
-  const StorefrontView = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-24">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold mb-6">Welcome to SilverStore</h1>
-            <p className="text-xl mb-8 opacity-90">Discover premium products with intelligent recommendations</p>
-            <div className="flex justify-center">
-              <div className="relative w-full max-w-lg">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Category Filter */}
-        <div className="mb-8">
-          <div className="flex space-x-4 overflow-x-auto">
-            {categories.map(category => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-2 rounded-full whitespace-nowrap font-medium transition-colors ${
-                  selectedCategory === category
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* AI Recommendations Section */}
-        {userProfile.aiRecommendations.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">🤖 AI Recommendations for You</h2>
-              <span className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm">
-                Powered by AI
-              </span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {userProfile.aiRecommendations.slice(0, 4).map(rec => (
-                <AIRecommendationCard 
-                  key={rec.product.id} 
-                  recommendation={rec} 
-                  addToCart={addToCart}
-                  onView={() => trackUserInteraction('view', rec.product.id)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Featured Products */}
-        {selectedCategory === 'all' && (
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Featured Products</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.filter(p => p.featured).map(product => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
-                  addToCart={addToCart}
-                  onView={() => trackUserInteraction('view', product.id)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* All Products */}
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            {selectedCategory === 'all' ? 'All Products' : `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Products`}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                addToCart={addToCart}
-                onView={() => trackUserInteraction('view', product.id)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   // AI Recommendation Card Component
   const AIRecommendationCard = ({ recommendation, addToCart, onView }) => {
     const { product, confidence, reason, type } = recommendation;
@@ -892,6 +606,110 @@ const ECommercePlatform = () => {
           <ShoppingCart className="h-4 w-4" />
           <span>{product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}</span>
         </button>
+      </div>
+    </div>
+  );
+
+  // Storefront view
+  const StorefrontView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-24">
+          <div className="text-center">
+            <h1 className="text-5xl font-bold mb-6">Welcome to SilverStore</h1>
+            <p className="text-xl mb-8 opacity-90">Discover premium products with intelligent recommendations</p>
+            <div className="flex justify-center">
+              <div className="relative w-full max-w-lg">
+                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Category Filter */}
+        <div className="mb-8">
+          <div className="flex space-x-4 overflow-x-auto">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-6 py-2 rounded-full whitespace-nowrap font-medium transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Recommendations Section */}
+        {userProfile.aiRecommendations.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">🤖 AI Recommendations for You</h2>
+              <span className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm">
+                Powered by AI
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {userProfile.aiRecommendations.slice(0, 4).map(rec => (
+                <AIRecommendationCard 
+                  key={rec.product.id} 
+                  recommendation={rec} 
+                  addToCart={addToCart}
+                  onView={() => trackUserInteraction('view', rec.product.id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Featured Products */}
+        {selectedCategory === 'all' && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Featured Products</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.filter(p => p.featured).map(product => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  addToCart={addToCart}
+                  onView={() => trackUserInteraction('view', product.id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* All Products */}
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            {selectedCategory === 'all' ? 'All Products' : `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Products`}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredProducts.map(product => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                addToCart={addToCart}
+                onView={() => trackUserInteraction('view', product.id)}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1209,7 +1027,7 @@ const ECommercePlatform = () => {
                         <span className="text-sm font-medium text-gray-700 capitalize">{category}</span>
                         <span className="text-sm text-gray-500">{percentage}%</span>
                       </div>
-                                              <div className="bg-gray-200 rounded-full h-2">
+                      <div className="bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
                           style={{ width: `${percentage}%` }}
@@ -1261,6 +1079,189 @@ const ECommercePlatform = () => {
     </div>
   );
 
+  // AI Insights View
+  const AIInsightsView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">🤖 SilverStore AI Insights</h1>
+          <span className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm">
+            Machine Learning Powered
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* User Preference Profile */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <div className="p-6 border-b border-purple-200">
+              <h2 className="text-xl font-semibold flex items-center">
+                <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
+                Your Preference Profile
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {Object.entries(userProfile.preferences).map(([category, score]) => (
+                  <div key={category}>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700 capitalize">{category}</span>
+                      <span className="text-sm text-purple-600 font-bold">{Math.round(score * 100)}%</span>
+                    </div>
+                    <div className="bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${score * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 p-4 bg-purple-50 rounded-lg">
+                <p className="text-sm text-purple-700">
+                  <strong>AI Analysis:</strong> You show strong interest in electronics and moderate interest in fitness products. 
+                  Our recommendations focus on high-tech gadgets and health-related items.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Recommendation Breakdown */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <div className="p-6 border-b border-purple-200">
+              <h2 className="text-xl font-semibold flex items-center">
+                <Eye className="h-5 w-5 mr-2 text-purple-600" />
+                Recommendation Engine
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {userProfile.aiRecommendations.slice(0, 4).map((rec, index) => (
+                  <div key={rec.product.id} className="border-l-4 border-purple-500 pl-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-gray-900">{rec.product.name}</span>
+                      <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                        {Math.round(rec.confidence * 100)}%
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{rec.reason}</p>
+                    <div className="flex items-center space-x-2 text-xs text-gray-500">
+                      <span className="bg-gray-100 px-2 py-1 rounded">{rec.type}</span>
+                      <span>${rec.product.price}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                <p className="text-sm text-gray-700">
+                  <strong>How it works:</strong> Our AI analyzes your browsing history, purchases, and similar users' 
+                  behavior to predict what you'll love next.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Behavioral Analytics */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <div className="p-6 border-b border-purple-200">
+              <h2 className="text-xl font-semibold flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
+                Shopping Behavior
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Purchase History</h3>
+                  <div className="space-y-2">
+                    {userProfile.purchaseHistory.slice(0, 3).map(productId => {
+                      const product = products.find(p => p.id === productId);
+                      return product ? (
+                        <div key={productId} className="flex items-center space-x-3 p-2 bg-green-50 rounded">
+                          <span className="text-lg">{product.image}</span>
+                          <div>
+                            <p className="text-sm font-medium">{product.name}</p>
+                            <p className="text-xs text-gray-500">${product.price}</p>
+                          </div>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Recently Viewed</h3>
+                  <div className="grid grid-cols-4 gap-2">
+                    {userProfile.browsingHistory.slice(-4).map(productId => {
+                      const product = products.find(p => p.id === productId);
+                      return product ? (
+                        <div key={productId} className="text-center p-2 bg-blue-50 rounded">
+                          <span className="text-lg">{product.image}</span>
+                          <p className="text-xs text-gray-600 mt-1 truncate">{product.name}</p>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+
+                <div className="p-4 bg-yellow-50 rounded-lg">
+                  <h3 className="font-medium text-yellow-800 mb-2">🎯 AI Prediction</h3>
+                  <p className="text-sm text-yellow-700">
+                    Based on your behavior, you're 78% likely to purchase another electronics item within the next week.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Smart Recommendations Grid */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">🚀 All AI Recommendations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {userProfile.aiRecommendations.map(rec => (
+              <AIRecommendationCard 
+                key={rec.product.id} 
+                recommendation={rec} 
+                addToCart={addToCart}
+                onView={() => trackUserInteraction('view', rec.product.id)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* AI Performance Metrics */}
+        <div className="mt-8 bg-white rounded-lg shadow-lg">
+          <div className="p-6 border-b border-purple-200">
+            <h2 className="text-xl font-semibold flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
+              AI Performance Metrics
+            </h2>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">94%</div>
+                <div className="text-sm text-green-700">Recommendation Accuracy</div>
+              </div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">76%</div>
+                <div className="text-sm text-blue-700">Click-through Rate</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">12%</div>
+                <div className="text-sm text-purple-700">Conversion Lift</div>
+              </div>
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">$2.4M</div>
+                <div className="text-sm text-orange-700">AI-driven Revenue</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navigation />
@@ -1273,4 +1274,4 @@ const ECommercePlatform = () => {
   );
 };
 
-export default ECommercePlatform;
+export default SilverStore;
